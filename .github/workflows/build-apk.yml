@@ -31,6 +31,9 @@ jobs:
 
       - name: Initialize Capacitor Android
         run: |
+          mkdir -p www
+          cp index.html game.js style.css www/
+          cp -r assets www/
           npx cap add android
           npx cap sync
 
