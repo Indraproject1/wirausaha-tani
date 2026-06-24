@@ -1,0 +1,6 @@
+{
+  "appId": "com.ndraskies.wirausahatani",
+  "appName": "Wirausaha Tani",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}

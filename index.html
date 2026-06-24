@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Wirausaha Tani - Imperium Agrobisnis</title>
+    <!-- Google Fonts untuk font pixel retro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 1. Peringatan Orientasi Layar (Miringkan HP) -->
+    <div id="orientation-warning" class="screen-overlay">
+        <div class="warning-box">
+            <div class="phone-icon-animate">🔄</div>
+            <h2>Miringkan HP Anda</h2>
+            <p>Silakan putar perangkat Anda ke posisi lanskap (Landscape/Miring) untuk mulai bermain.</p>
+        </div>
+    </div>
+
+    <!-- 2. Loading Screen -->
+    <div id="loading-screen" class="screen-overlay active">
+        <div class="loading-content">
+            <h1 class="game-logo-text">WIRAUSAHA TANI</h1>
+            <p class="game-subtitle">Membangun Imperium Agrobisnis</p>
+            <div class="loading-bar-container">
+                <div id="loading-bar-fill"></div>
+            </div>
+            <div id="loading-status">Memuat peternakan... 0%</div>
+            <!-- Tombol Mulai setelah loading selesai, mengatasi isu Autoplay Audio browser -->
+            <button id="btn-start-game-loading" class="btn-retro hidden" style="margin-top: 20px; font-size: 12px; padding: 12px 24px; animation: pulse 1.5s infinite;">▶ MASUK KE PERMAINAN</button>
+        </div>
+    </div>
+
+    <!-- 3. Main Menu Screen -->
+    <div id="main-menu-screen" class="screen-overlay">
+        <div class="menu-container">
+            <h1 class="game-logo-text pulse">WIRAUSAHA TANI</h1>
+            <p class="game-subtitle-menu">Pagi Hari yang Cerah di Kebun Fantasi</p>
+            
+            <div class="menu-buttons">
+                <button id="btn-start" class="btn-retro">MULAI BERMAIN</button>
+                <button id="btn-load-menu" class="btn-retro">📂 MUAT PERMAINAN</button>
+                <button id="btn-settings" class="btn-retro">PENGATURAN</button>
+                <button id="btn-credits" class="btn-retro">KREDIT</button>
+                <button id="btn-exit" class="btn-retro btn-danger">KELUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Settings Screen (Overlay) -->
+    <div id="settings-screen" class="game-modal hidden" style="z-index: 1000;">
+        <div class="popup-box wood-panel">
+            <div class="popup-header">
+                <h2>⚙️ PENGATURAN</h2>
+                <button class="btn-close" id="btn-close-settings">×</button>
+            </div>
+            <div class="popup-body">
+                <div class="setting-item" style="margin-bottom: 20px; margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 14px; font-family: var(--ui-font); color: #fff;">
+                        <input type="checkbox" id="check-mute" style="width: 24px; height: 24px; accent-color: var(--morning-gold); cursor: pointer;">
+                        🔊 Aktifkan Musik Latar (BGM)
+                    </label>
+                </div>
+                <div class="setting-item" style="margin-bottom: 10px;">
+                    <button id="btn-settings-edit-hud" class="btn-retro" style="width: 100%; background-color: #f57c00; font-size: 11px; padding: 14px 10px; letter-spacing: 0.5px;">🎨 EDIT TAMPILAN HUD (KONTROL)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Credits Screen (Overlay) -->
+    <div id="credits-screen" class="game-modal hidden" style="z-index: 1000;">
+        <div class="popup-box wood-panel">
+            <div class="popup-header">
+                <h2>🏆 KREDIT GAME</h2>
+                <button class="btn-close" id="btn-close-credits">×</button>
+            </div>
+            <div class="popup-body credits-body">
+                <h3>WIRAUSAHA TANI v1.0</h3>
+                <p>Programmer / Developer: <strong>Khoirul Akhmad Indra</strong></p>
+                <p>Instagram: <strong>@ndraskies</strong></p>
+                <p>Gaya Desain: <em>Fantasy retro 16-bit pixel art</em> pagi hari.</p>
+                <div class="divider"></div>
+                <p>Terima kasih telah memainkan game simulasi ini! Kelola uang Anda dengan bijak untuk membuka Sumur Otomatis dan Toko Ekspor!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save/Load Slots Modal Overlay -->
+    <div id="slots-screen" class="game-modal hidden" style="z-index: 900;">
+        <div class="popup-box wood-panel" style="width: 380px;">
+            <div class="popup-header">
+                <h2 id="slots-title">PILIH SLOT GAME</h2>
+                <button class="btn-close" id="btn-close-slots">×</button>
+            </div>
+            <div class="popup-body" style="padding: 15px; background: rgba(0,0,0,0.25);">
+                <div class="slots-container" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Slot 1 -->
+                    <button class="btn-retro slot-card" id="slot-card-1" data-slot="1" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; width: 100%; border-radius: 6px;">
+                        <span style="font-weight: bold; color: #ffd54f; font-size: 9px; letter-spacing: 0.5px;">SLOT 1</span>
+                        <span class="slot-info" id="slot-1-info" style="font-family: 'Outfit', sans-serif; font-size: 11px; color: #eee; font-weight: normal;">[KOSONG]</span>
+                    </button>
+                    <!-- Slot 2 -->
+                    <button class="btn-retro slot-card" id="slot-card-2" data-slot="2" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; width: 100%; border-radius: 6px;">
+                        <span style="font-weight: bold; color: #ffd54f; font-size: 9px; letter-spacing: 0.5px;">SLOT 2</span>
+                        <span class="slot-info" id="slot-2-info" style="font-family: 'Outfit', sans-serif; font-size: 11px; color: #eee; font-weight: normal;">[KOSONG]</span>
+                    </button>
+                    <!-- Slot 3 -->
+                    <button class="btn-retro slot-card" id="slot-card-3" data-slot="3" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; width: 100%; border-radius: 6px;">
+                        <span style="font-weight: bold; color: #ffd54f; font-size: 9px; letter-spacing: 0.5px;">SLOT 3</span>
+                        <span class="slot-info" id="slot-3-info" style="font-family: 'Outfit', sans-serif; font-size: 11px; color: #eee; font-weight: normal;">[KOSONG]</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Gameplay Screen -->
+    <div id="game-screen" class="screen-overlay">
+        <!-- Game HUD (Top Bar) -->
+        <div id="hud-top">
+            <div class="hud-item hud-cash">
+                <span class="hud-icon">💰</span>
+                <span id="hud-cash-val">Rp 20.000</span>
+            </div>
+            <div class="hud-item hud-day">
+                <span class="hud-icon">📅</span>
+                <span id="hud-day-val">Hari Ke: 1</span>
+            </div>
+            <div class="hud-item hud-level">
+                <div class="lvl-badge" id="hud-lvl-badge">Lvl 1</div>
+                <div class="xp-bar-outer">
+                    <div class="xp-bar-inner" id="hud-xp-fill" style="width: 0%;"></div>
+                    <span id="hud-xp-text">0/100 XP</span>
+                </div>
+            </div>
+            <div class="hud-item" style="padding: 0; border: none; background: transparent; box-shadow: none; display: flex; gap: 6px; align-items: center;">
+                <button id="btn-cheat-hud" class="btn-retro" style="padding: 6px 8px; font-size: 8px; margin: 0; line-height: 1.2; background: linear-gradient(135deg, #7b1fa2, #4a148c); border-color: #9c27b0; color: #fff;" title="Cheat Dev Panel">💎 CHEAT</button>
+                <button id="btn-hud-guide" class="btn-retro" style="padding: 6px 10px; font-size: 8px; margin: 0; line-height: 1.2;">❓ PANDUAN</button>
+                <button id="btn-hud-menu" class="btn-retro" style="padding: 6px 12px; font-size: 8px; margin: 0; line-height: 1.2;">☰ MENU</button>
+            </div>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="notification-area"></div>
+
+        <!-- CHEAT PANEL MODAL -->
+        <div id="modal-cheat" class="game-modal hidden" style="z-index: 100;">
+            <div class="cheat-panel wood-panel">
+                <div class="cheat-panel-header">
+                    <div class="cheat-panel-title">💎 DEV CHEAT PANEL</div>
+                    <button class="btn-modal-close" id="btn-close-cheat">×</button>
+                </div>
+                <p class="cheat-panel-desc">Pilih jumlah kas yang ingin ditambahkan:</p>
+                <div class="cheat-amounts">
+                    <button class="btn-retro cheat-amount-btn" data-amount="10000">+Rp 10.000</button>
+                    <button class="btn-retro cheat-amount-btn" data-amount="50000">+Rp 50.000</button>
+                    <button class="btn-retro cheat-amount-btn" data-amount="100000">+Rp 100.000</button>
+                    <button class="btn-retro cheat-amount-btn" data-amount="250000">+Rp 250.000</button>
+                    <button class="btn-retro cheat-amount-btn" data-amount="500000">+Rp 500.000</button>
+                    <button class="btn-retro cheat-amount-btn" data-amount="1000000">+Rp 1.000.000</button>
+                </div>
+                <div class="cheat-current-cash">
+                    Kas saat ini: <span id="cheat-cash-display">Rp 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div id="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- HUD Customizer Editor Bar (Top Overlay in Edit Mode) -->
+        <div id="hud-editor-bar" class="wood-panel hidden">
+            <div class="hud-editor-title">🎨 EDIT KONTROL HUD</div>
+            <div class="hud-editor-group">
+                <span>Tipe:</span>
+                <button id="btn-editor-type-dpad" class="btn-retro btn-editor-tab active-tab">D-PAD</button>
+                <button id="btn-editor-type-analog" class="btn-retro btn-editor-tab">ANALOG</button>
+            </div>
+            <div class="hud-editor-group">
+                <span>Ukuran:</span>
+                <input type="range" id="slider-hud-scale" min="0.75" max="1.5" step="0.05" value="1.0">
+                <span id="val-hud-scale">100%</span>
+            </div>
+            <div class="hud-editor-group">
+                <span>Transparansi:</span>
+                <input type="range" id="slider-hud-opacity" min="0.3" max="1.0" step="0.05" value="0.9">
+                <span id="val-hud-opacity">90%</span>
+            </div>
+            <div class="hud-editor-actions">
+                <button id="btn-editor-reset" class="btn-retro" style="background-color: #78909c;">RESET</button>
+                <button id="btn-editor-cancel" class="btn-retro btn-danger">BATAL</button>
+                <button id="btn-editor-save" class="btn-retro" style="background-color: #2e7d32;">SIMPAN</button>
+            </div>
+        </div>
+
+        <!-- Virtual Controls (Overlay Bottom) -->
+        <div id="controls-overlay">
+            <!-- Left Side: D-Pad -->
+            <div id="dpad" class="draggable-hud-element">
+                <button id="dpad-up" class="dpad-btn">▲</button>
+                <div class="dpad-row">
+                    <button id="dpad-left" class="dpad-btn">◀</button>
+                    <div class="dpad-center"></div>
+                    <button id="dpad-right" class="dpad-btn">▶</button>
+                </div>
+                <button id="dpad-down" class="dpad-btn">▼</button>
+            </div>
+
+            <!-- Left Side: Analog Joystick -->
+            <div id="analog-joystick" class="draggable-hud-element hidden">
+                <div class="joystick-base">
+                    <div class="joystick-knob"></div>
+                </div>
+            </div>
+
+            <!-- Right Side: Action Buttons -->
+            <div id="action-buttons" class="draggable-hud-element">
+                <button id="btn-action-a" class="action-btn color-a">
+                    <span class="action-label">A</span>
+                    <span class="action-desc" id="label-action-a">Cangkul</span>
+                </button>
+                <button id="btn-action-b" class="action-btn color-b">
+                    <span class="action-label">B</span>
+                    <span class="action-desc" id="label-action-b">Toko / Tanam</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- In-game Pause Menu Overlay (Bisa freeze/jeda waktu game!) -->
+        <div id="pause-menu-overlay" class="game-modal hidden">
+            <div class="modal-content wood-panel" style="width: 320px;">
+                <div class="modal-header">
+                    <h2>⏸️ MENU PERMAINAN</h2>
+                    <button class="btn-modal-close" id="btn-close-pause-menu">×</button>
+                </div>
+                <div class="modal-body pause-menu-body" style="display: flex; flex-direction: column; gap: 12px; padding: 15px 15px;">
+                    <button id="btn-pause-continue" class="btn-retro">▶ LANJUTKAN</button>
+                    <button id="btn-pause-save" class="btn-retro">💾 SIMPAN DATA (SAVE)</button>
+                    <button id="btn-pause-settings" class="btn-retro">⚙️ PENGATURAN</button>
+                    <button id="btn-pause-exit" class="btn-retro btn-danger" style="margin-top: 10px;">🚪 KELUAR KE MENU UTAMA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jendela Panduan Permainan (Overlay Bantuan) -->
+        <div id="guide-screen" class="screen-overlay popup-hidden" style="z-index: 950; display: flex; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.6);">
+            <div class="popup-box wood-panel" style="width: 440px; max-width: 95%;">
+                <div class="popup-header">
+                    <h2>📖 PANDUAN BERMAIN</h2>
+                    <button class="btn-close" id="btn-close-guide">×</button>
+                </div>
+                <div class="popup-body" style="padding: 15px; max-height: 70vh; overflow-y: auto;">
+                    <!-- Tab Button Headers -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button id="tab-controls" class="btn-retro active-tab" style="flex: 1; padding: 8px; font-size: 8px;">🕹️ KONTROL</button>
+                        <button id="tab-gameplay" class="btn-retro" style="flex: 1; padding: 8px; font-size: 8px;">🌾 GAMEPLAY</button>
+                    </div>
+
+                    <!-- Tab Content: Controls -->
+                    <div id="guide-controls-content" class="guide-tab-content">
+                        <div class="wood-panel-inner" style="margin-bottom: 10px;">
+                            <h4 style="font-family: var(--retro-font); font-size: 8px; color: var(--morning-gold); margin-bottom: 6px;">🎮 LAYAR SENTUH (HP)</h4>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🕹️ <strong>D-Pad:</strong> Sentuh arah panah untuk menggerakkan petani.</p>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🟢 <strong>Tombol A:</strong> Interaksi Cangkul / Siram Air ke petak tanah.</p>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🔵 <strong>Tombol B:</strong> Tanam Benih / Panen tanaman matang / Interaksi bangunan (Toko, Silo, Sumur, Ekspor).</p>
+                        </div>
+                        <div class="wood-panel-inner">
+                            <h4 style="font-family: var(--retro-font); font-size: 8px; color: var(--morning-gold); margin-bottom: 6px;">⌨️ KEYBOARD (PC/LAPTOP)</h4>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🚶‍♂️ <strong>Gerak Petani:</strong> Tombol Panah atau <strong>W / A / S / D</strong>.</p>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🟢 <strong>Tombol A:</strong> Tekan tombol <strong>J</strong> pada keyboard.</p>
+                            <p style="font-size: 11px; margin-bottom: 5px; line-height: 1.5; color: #eee;">🔵 <strong>Tombol B:</strong> Tekan tombol <strong>K</strong> pada keyboard.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Gameplay -->
+                    <div id="guide-gameplay-content" class="guide-tab-content hidden">
+                        <div class="wood-panel-inner" style="margin-bottom: 10px;">
+                            <h4 style="font-family: var(--retro-font); font-size: 8px; color: var(--morning-gold); margin-bottom: 6px;">🌱 CARA BERCOCOK TANAM</h4>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">1. Dekati petak tanah rumput, lalu tekan <strong>A (Cangkul)</strong>.</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">2. Tekan <strong>B (Tanam)</strong> pada tanah gembur, lalu pilih benih di tas.</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">3. Tekan <strong>A (Siram)</strong> agar tanah basah. Tanaman hanya tumbuh di tanah basah (cokelat tua)!</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">4. Saat matang (ada buah melayang), tekan <strong>B (Panen)</strong> untuk memanen (+XP).</p>
+                        </div>
+                        <div class="wood-panel-inner" style="margin-bottom: 10px;">
+                            <h4 style="font-family: var(--retro-font); font-size: 8px; color: var(--morning-gold); margin-bottom: 6px;">🏬 AREA & FITUR BANGUNAN</h4>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">🏪 <strong>Toko Desa (Kiri Bawah):</strong> Beli benih padi, jagung, tomat, buah naga.</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">🌾 <strong>Lumbung Silo (Kiri Atas):</strong> Simpan hasil panen. Kapasitas terbatas, bisa di-upgrade!</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">💧 <strong>Sumur (Kanan Bawah):</strong> Bisa dibangun sumur otomatis (Lvl 3) untuk mempercepat tumbuh 20%.</p>
+                            <p style="font-size: 11px; margin-bottom: 4px; line-height: 1.4; color: #eee;">🚢 <strong>Toko Ekspor (Kanan Atas):</strong> Dibuka Lvl 4. Harga jual premium 1.5x lipat!</p>
+                        </div>
+                        <div class="wood-panel-inner">
+                            <h4 style="font-family: var(--retro-font); font-size: 8px; color: var(--morning-gold); margin-bottom: 6px;">🌟 PROGRESS PERMAINAN</h4>
+                            <p style="font-size: 11px; line-height: 1.4; color: #eee;">Kumpulkan XP untuk naik Level! Level baru membuka benih tanaman mahal yang lebih menguntungkan: Jagung (Lvl 2), Tomat (Lvl 3), Buah Naga (Lvl 4).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gameplay Modal: TOKO DESA (Beli) -->
+        <div id="modal-toko" class="game-modal hidden">
+
+            <div class="modal-content wood-panel">
+                <div class="modal-header">
+                    <h2>🛒 TOKO DESA</h2>
+                    <button class="btn-modal-close" id="btn-close-toko">×</button>
+                </div>
+                <div class="modal-body scrollable">
+                    <div class="shop-list" id="shop-items-container">
+                        <!-- Diisi secara dinamis melalui game.js -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span>Kas Anda: <strong id="shop-cash-val">Rp 20.000</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gameplay Modal: TAS SAYA (Inventori & Detail) -->
+        <div id="modal-tas" class="game-modal hidden">
+            <div class="modal-content wood-panel">
+                <div class="modal-header">
+                    <h2>🎒 TAS SAYA</h2>
+                    <button class="btn-modal-close" id="btn-close-tas">×</button>
+                </div>
+                <div class="modal-body grid-layout">
+                    <!-- Left: Inventory Grid -->
+                    <div class="inventory-grid" id="inventory-grid-container">
+                        <!-- Diisi secara dinamis -->
+                    </div>
+                    <!-- Right: Item Detail -->
+                    <div class="item-detail-panel wood-panel-inner">
+                        <div id="detail-icon-container"></div>
+                        <h3 id="detail-title">Pilih Item</h3>
+                        <p id="detail-desc">Pilih item dari tas untuk melihat detail atau info kegunaannya.</p>
+                        <div id="detail-actions">
+                            <!-- Diisi dinamis -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gameplay Modal: PASAR DESA (Jual Panen) -->
+        <div id="modal-pasar" class="game-modal hidden">
+            <div class="modal-content wood-panel">
+                <div class="modal-header">
+                    <h2 id="pasar-title">⚖️ PASAR DESA</h2>
+                    <button class="btn-modal-close" id="btn-close-pasar">×</button>
+                </div>
+                <div class="modal-body scrollable">
+                    <p class="market-info" id="pasar-multiplier-text">Harga jual biasa (1.0x)</p>
+                    <div class="market-list" id="market-items-container">
+                        <!-- Diisi secara dinamis -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-jual-semua" class="btn-retro">JUAL SEMUA HASIL PANEN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NPC DIALOG MODAL (Pak Karsa) -->
+        <div id="modal-dialog" class="game-modal hidden" style="z-index: 55; align-items: flex-end; padding-bottom: 0;">
+            <div class="dialog-box wood-panel">
+                <div class="dialog-character-row">
+                    <div class="dialog-avatar" id="dialog-avatar">
+                        <div class="pak-karsa-avatar"></div>
+                    </div>
+                    <div class="dialog-content-area">
+                        <div class="dialog-name" id="dialog-name">Pak Karsa</div>
+                        <div class="dialog-text" id="dialog-text">...</div>
+                    </div>
+                </div>
+                <div class="dialog-choices" id="dialog-choices"></div>
+            </div>
+        </div>
+
+        <!-- CHAPTER TRANSITION OVERLAY (Layar Hitam Sinematik) -->
+        <div id="chapter-transition-overlay" class="hidden">
+            <div class="chapter-transition-content">
+                <div class="chapter-badge" id="chapter-badge-text">CHAPTER 2</div>
+                <div class="chapter-title-big" id="chapter-title-big">Kota Agropolitan</div>
+                <div class="chapter-desc" id="chapter-desc">Kota yang penuh peluang...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
