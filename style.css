@@ -550,7 +550,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 60px; /* Menghindari overlap dengan HUD Top Bar di atas */
+    padding-top: 15px; /* Mengurangi padding agar tampilan map dan karakter (MC/NPC) menjadi lebih besar */
     box-sizing: border-box;
 }
 
