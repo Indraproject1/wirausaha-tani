@@ -18,7 +18,6 @@
     padding: 0;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none; /* Mencegah double tap zoom dan panning bawaan browser */
 }
 
 body, html {
@@ -28,6 +27,7 @@ body, html {
     background-color: #1a0f0d;
     font-family: var(--ui-font);
     color: var(--text-color);
+    touch-action: none; /* Mencegah pull-to-refresh dan scroll halaman utama */
 }
 
 /* 1. LAYAR PERINGATAN ORIENTASI (PORTRAIT WARNING) */
@@ -550,6 +550,8 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 60px; /* Menghindari overlap dengan HUD Top Bar di atas */
+    box-sizing: border-box;
 }
 
 #game-canvas {
@@ -558,6 +560,7 @@ body, html {
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
     max-width: 100%;
     max-height: 100%;
+    touch-action: none; /* Cegah interaksi bawaan browser pada canvas game */
 }
 
 /* 7. VIRTUAL CONTROLS OVERLAY */
@@ -569,6 +572,7 @@ body, html {
     height: 100%;
     pointer-events: none;
     z-index: 15;
+    touch-action: none; /* Cegah interaksi bawaan browser pada kontrol virtual */
 }
 
 #controls-overlay button, #controls-overlay .joystick-base {
@@ -1366,8 +1370,41 @@ body, html {
     line-height: 1.6;
 }
 
+/* Aktifkan touch-scrolling vertikal pada kontainer scrollable */
+.modal-body.scrollable, .popup-body, .dialog-text, .inventory-grid {
+    touch-action: pan-y;
+}
+
 /* Responsive adjustments for mobile landscape / low height viewports */
 @media (max-height: 480px) {
+    /* Tombol retro lebih padat pada layar tinggi rendah */
+    .btn-retro {
+        padding: 6px 12px;
+        font-size: 9px;
+        border-width: 3px;
+    }
+    
+    /* Spacing modal lebih ringkas */
+    .modal-content, .popup-box {
+        max-height: 92%;
+    }
+    
+    .modal-body, .popup-body {
+        padding: 8px 10px;
+    }
+    
+    .modal-header, .popup-header {
+        padding: 6px 12px;
+    }
+    
+    .pause-menu-body {
+        gap: 8px !important;
+    }
+    
+    .pause-menu-body button {
+        margin-top: 0 !important;
+    }
+
     #modal-dialog .dialog-box {
         max-height: 52vh;
     }
